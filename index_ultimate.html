@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Inventarz - Ultimate Edition</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#218085">
+    <!-- PWA Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="QR Inventarz">
+    <link rel="apple-touch-icon" href="icon-192.png">
+</head>
+<body>
+    <div id="app">
+        <!-- Navigation -->
+        <nav class="nav">
+            <button class="nav-btn nav-btn--active" data-tab="scanner">
+                <span>📱</span>
+                <span>Scanner</span>
+            </button>
+            <button class="nav-btn" data-tab="list">
+                <span>📋</span>
+                <span>Lista</span>
+            </button>
+            <button class="nav-btn" data-tab="export">
+                <span>📤</span>
+                <span>Eksport</span>
+            </button>
+        </nav>
+
+        <!-- Scanner Tab -->
+        <div id="scanner-tab" class="tab tab--active">
+            <div class="scanner-section">
+                <h2>QR Scanner v3.0</h2>
+                
+                <!-- Session Info -->
+                <div class="session-info">
+                    <div id="session-counter" class="session-counter">
+                        Sesja: 0 przedmiotów • 0s
+                    </div>
+                    <div class="session-controls">
+                        <button id="new-session-btn" class="btn btn--outline btn--sm">
+                            🆕 Nowa sesja
+                        </button>
+                        <button id="end-session-btn" class="btn btn--outline btn--sm">
+                            🏁 Zakończ
+                        </button>
+                        <button id="undo-btn" class="btn btn--outline btn--sm" disabled>
+                            ↶ Cofnij
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Scanner Mode Indicator -->
+                <div id="scanner-mode" class="scanner-mode scanner-mode--item">
+                    <div class="mode-icon">📱</div>
+                    <div class="mode-text">Skanuj przedmiot</div>
+                    <div class="mode-instruction">Zeskanuj kod DOM przedmiotu</div>
+                </div>
+
+                <!-- Batch Mode Info -->
+                <div id="batch-info" class="batch-info hidden">
+                    <div class="batch-target">📦 PUDEŁKO</div>
+                    <div class="batch-count">0 przedmiotów</div>
+                </div>
+
+                <!-- Camera Container -->
+                <div class="camera-container">
+                    <video id="qr-video" playsinline muted autoplay></video>
+                    <div id="scan-overlay" class="scan-overlay hidden">
+                        <div class="scan-success-icon">✅</div>
+                    </div>
+                </div>
+
+                <!-- Scanner Controls -->
+                <div class="scanner-controls">
+                    <button id="start-scan-btn" class="btn btn--primary btn--lg btn--full-width">
+                        🚀 Rozpocznij skanowanie
+                    </button>
+                    <button id="stop-scan-btn" class="btn btn--secondary btn--lg btn--full-width hidden">
+                        ⏹️ Zatrzymaj skanowanie
+                    </button>
+                    
+                    <div class="control-row">
+                        <button id="switch-camera-btn" class="btn btn--outline btn--sm hidden">
+                            🔄 Kamera
+                        </button>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="prevent-duplicates" checked>
+                            <span>Blokuj duplikaty</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Scanner Status -->
+                <div id="scanner-status" class="scanner-status hidden">
+                    <div class="status status--info">
+                        <span>📡 Gotowy do skanowania</span>
+                    </div>
+                </div>
+
+                <!-- Recent Scans -->
+                <div class="recent-scans-container">
+                    <h3>Ostatnie skany:</h3>
+                    <div id="recent-scans" class="recent-scans">
+                        <!-- Dynamic content -->
+                    </div>
+                </div>
+
+                <!-- Result Area -->
+                <div id="result-area" class="result-area hidden">
+                    <div class="card">
+                        <div class="card__body">
+                            <h3 id="result-title">Wynik skanowania</h3>
+                            <div id="result-content">
+                                <!-- Dynamic content -->
+                            </div>
+                            <div class="result-actions">
+                                <button id="batch-mode-btn" class="btn btn--primary hidden">
+                                    📦 Tryb Batch
+                                </button>
+                                <button id="scan-box-btn" class="btn btn--secondary hidden">
+                                    📦 Skanuj pudełko
+                                </button>
+                                <button id="add-new-btn" class="btn btn--secondary hidden">
+                                    ➕ Dodaj nowy
+                                </button>
+                                <button id="edit-item-btn" class="btn btn--outline hidden">
+                                    ✏️ Edytuj
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Batch Mode Controls -->
+                <div class="batch-controls hidden" id="batch-controls">
+                    <button id="exit-batch-btn" class="btn btn--outline btn--lg btn--full-width">
+                        🚪 Zakończ tryb batch
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- List Tab -->
+        <div id="list-tab" class="tab">
+            <div class="list-section">
+                <h2>Lista przedmiotów</h2>
+                
+                <!-- View Toggle -->
+                <div class="view-toggle">
+                    <button id="table-view-btn" class="btn btn--primary btn--sm">
+                        📊 Tabela
+                    </button>
+                    <button id="card-view-btn" class="btn btn--outline btn--sm">
+                        🗃️ Karty
+                    </button>
+                </div>
+
+                <!-- Controls -->
+                <div class="inventory-controls">
+                    <div class="control-row">
+                        <input type="text" id="search-input" class="form-control" placeholder="Szukaj po kodzie, nazwie lub pudełku...">
+                        <button id="refresh-btn" class="btn btn--outline btn--sm">
+                            🔄 Odśwież
+                        </button>
+                    </div>
+                    <div class="control-row">
+                        <select id="box-filter" class="form-control">
+                            <option value="">Wszystkie pudełka</option>
+                        </select>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="session-only-filter">
+                            <span>Tylko z sesji</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Results Info -->
+                <div id="results-count" class="results-info">
+                    Wyświetlonych: 0 z 0 przedmiotów
+                </div>
+
+                <!-- Table View -->
+                <div id="table-container" class="table-container">
+                    <table class="inventory-table">
+                        <thead>
+                            <tr>
+                                <th class="sortable" data-sort="serial">
+                                    Kod DOM <span class="sort-icon">↕️</span>
+                                </th>
+                                <th class="sortable" data-sort="item">
+                                    Nazwa przedmiotu <span class="sort-icon">↕️</span>
+                                </th>
+                                <th class="sortable" data-sort="box">
+                                    Pudełko <span class="sort-icon">↕️</span>
+                                </th>
+                                <th class="sortable" data-sort="lastSeen">
+                                    Ostatnio widziano <span class="sort-icon">↕️</span>
+                                </th>
+                                <th class="sortable" data-sort="boxChanged">
+                                    Zmiana pudełka <span class="sort-icon">↕️</span>
+                                </th>
+                                <th>Akcje</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventory-tbody">
+                            <!-- Dynamic content -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Card View -->
+                <div id="cards-container" class="items-container hidden">
+                    <!-- Dynamic content -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Export Tab -->
+        <div id="export-tab" class="tab">
+            <div class="export-section">
+                <h2>Eksport danych</h2>
+
+                <!-- Stats -->
+                <div class="stats-grid">
+                    <!-- Total Stats -->
+                    <div class="card stats-card">
+                        <div class="card__body">
+                            <h3>Wszystkie przedmioty</h3>
+                            <div class="stats">
+                                <div class="stat-item">
+                                    <span class="stat-label">Wszystkie przedmioty:</span>
+                                    <span class="stat-value" id="total-items">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Z przypisanym pudełkiem:</span>
+                                    <span class="stat-value" id="items-with-box">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Bez pudełka:</span>
+                                    <span class="stat-value" id="items-without-box">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Aktywnych pudełek:</span>
+                                    <span class="stat-value" id="total-boxes">0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Session Stats -->
+                    <div class="card stats-card">
+                        <div class="card__body">
+                            <h3>Bieżąca sesja</h3>
+                            <div id="session-stats" class="stats">
+                                <div class="stat-item">
+                                    <span class="stat-label">Sesja - przedmioty:</span>
+                                    <span class="stat-value">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Sesja - pudełka:</span>
+                                    <span class="stat-value">0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Export Options -->
+                <div class="export-options-card">
+                    <div class="card">
+                        <div class="card__body">
+                            <h3>Opcje eksportu</h3>
+                            <div class="export-options">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="include-empty-boxes" checked>
+                                    Uwzględnij przedmioty bez pudełka
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="include-timestamps" checked>
+                                    Uwzględnij znaczniki czasu
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="include-item-names" checked>
+                                    Uwzględnij nazwy przedmiotów
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Export Preview -->
+                <div class="export-preview-container">
+                    <div class="export-preview-tabs">
+                        <button id="preview-all-btn" class="btn btn--outline btn--sm">
+                            👁️ Podgląd wszystkich
+                        </button>
+                        <button id="preview-session-btn" class="btn btn--primary btn--sm">
+                            👁️ Podgląd sesji
+                        </button>
+                    </div>
+                    <div class="card export-preview">
+                        <div class="card__body">
+                            <h4>Podgląd CSV:</h4>
+                            <div id="export-preview-content" class="export-preview-content">
+                                <!-- Dynamic preview -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Export Controls -->
+                <div class="export-controls">
+                    <div class="export-section-header">
+                        <h3>📥 Wszystkie przedmioty</h3>
+                    </div>
+                    <div class="export-buttons">
+                        <button id="export-csv-btn" class="btn btn--secondary btn--lg">
+                            📥 Pobierz CSV (wszystkie)
+                        </button>
+                        <button id="copy-csv-btn" class="btn btn--outline">
+                            📋 Kopiuj (wszystkie)
+                        </button>
+                    </div>
+                    
+                    <div class="export-section-header">
+                        <h3>🎯 Tylko z bieżącej sesji</h3>
+                        <p>Eksportuj tylko przedmioty zeskanowane w tej sesji - idealne do porównania z dużą bazą danych</p>
+                    </div>
+                    <div class="export-buttons">
+                        <button id="export-session-csv-btn" class="btn btn--primary btn--lg">
+                            📥 Pobierz CSV (sesja)
+                        </button>
+                        <button id="copy-session-csv-btn" class="btn btn--outline">
+                            📋 Kopiuj (sesja)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Item Modal -->
+    <div id="item-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3 id="modal-title">Dodaj nowy przedmiot</h3>
+            <form id="item-form">
+                <div class="form-group">
+                    <label for="item-serial" class="form-label">Kod DOM*</label>
+                    <input type="text" id="item-serial" class="form-control" placeholder="DOM001" required>
+                </div>
+                <div class="form-group">
+                    <label for="item-name" class="form-label">Nazwa przedmiotu</label>
+                    <input type="text" id="item-name" class="form-control" placeholder="Nazwa przedmiotu">
+                </div>
+                <div class="form-group">
+                    <label for="item-box" class="form-label">Pudełko</label>
+                    <input type="text" id="item-box" class="form-control" placeholder="Kod pudełka">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" id="cancel-modal-btn" class="btn btn--outline">
+                        ❌ Anuluj
+                    </button>
+                    <button type="submit" class="btn btn--primary">
+                        ✅ Zapisz
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="help-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3>🎯 Skróty klawiszowe</h3>
+            <div class="help-content">
+                <div class="help-item">
+                    <strong>Ctrl + B</strong> - Przełącz tryb batch
+                </div>
+                <div class="help-item">
+                    <strong>Ctrl + Z</strong> - Cofnij ostatni skan
+                </div>
+                <div class="help-item">
+                    <strong>Ctrl + N</strong> - Nowa sesja
+                </div>
+                <div class="help-item">
+                    <strong>Escape</strong> - Zamknij modal
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" id="close-help-btn" class="btn btn--primary">
+                    ✅ OK
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Button -->
+    <button id="help-btn" class="help-button" title="Pomoc">
+        ❓
+    </button>
+
+    <!-- Messages will be inserted here dynamically -->
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+    <script src="app_ultimate.js"></script>
+</body>
+</html>
