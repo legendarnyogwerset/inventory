@@ -1,0 +1,30 @@
+Kategoria,Problem,Rozwiązanie,Plik,Status
+Kamera,Brak sprawdzania uprawnień,requestCameraPermission(),app.js,✅ Naprawione
+Kamera,Brak obsługi błędów kamery,Proper error handling w startCamera(),app.js,✅ Naprawione
+Kamera,Brak przełączania kamer,switchCamera() + enumerate devices,app.js,✅ Dodane
+Kamera,Brak cleanup przy zamknięciu,stopCamera() + beforeunload event,app.js,✅ Naprawione
+Skanowanie,Możliwość wielokrotnych skanów,Debouncing 2000ms,app.js,✅ Naprawione
+Skanowanie,Brak walidacji kodów DOM,DOM_CODE_PATTERN regex,app.js,✅ Dodane
+Skanowanie,Lagowanie przy długim użyciu,scanningActive flag + cleanup,app.js,✅ Naprawione
+Audio,Problemy z audio context,initAudioContext() + resume handling,app.js,✅ Naprawione
+Audio,Brak różnych dźwięków,playSuccessSound() + playBoxSuccessSound(),app.js,✅ Dodane
+Audio,Brak feedback błędów,playErrorSound(),app.js,✅ Dodane
+Storage,Brak obsługi błędów localStorage,try/catch w saveToLocalStorage(),app.js,✅ Naprawione
+Storage,Brak backup/restore,Import/export funkcjonalność,app.js,✅ Dodane
+UI/UX,Brak informacji o statusie,updateScannerStatus(),app.js,✅ Dodane
+UI/UX,Brak animacji wizualnych,showGreenAnimation() + CSS,app.js,✅ Dodane
+UI/UX,Brak vibration feedback,vibrateDevice(),app.js,✅ Dodane
+Performance,Brak optymalizacji renderowania,Lazy rendering + filtering,app.js,✅ Dodane
+Performance,Memory leaks,Proper cleanup + garbage collection,app.js,✅ Naprawione
+Export,Podstawowy CSV,Konfigurowalne opcje eksportu,app.js,✅ Ulepszone
+Export,Brak podglądu,updateCSVPreview(),app.js,✅ Dodane
+Export,Brak kopiowania do schowka,copyCSVToClipboard(),app.js,✅ Dodane
+Error Handling,Brak globalnej obsługi błędów,Try/catch w kluczowych funkcjach,app.js,✅ Naprawione
+Error Handling,Brak komunikatów błędów,showMessage() system,app.js,✅ Dodane
+Accessibility,Brak keyboard shortcuts,Escape key + form handling,app.js,✅ Dodane
+PWA,Brak obsługi PWA,manifest.json + ikony,manifest.json,✅ Dodane
+Mobile,Problemy na urządzeniach mobilnych,Responsive design + touch handling,style.css,✅ Poprawione
+Data Validation,Brak walidacji formularzy,Walidacja w handleSubmit,app.js,✅ Dodane
+Security,Brak sanityzacji danych,escapeCSV() function,app.js,✅ Dodane
+Installation,Skomplikowana instalacja,start.py + start.bat scripts,scripts,✅ Dodane
+Documentation,Brak dokumentacji,README.md + INSTALACJA.md,docs,✅ Stworzone
